@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace PlaylistSync
 {
-    class Program
+    internal class Program
     {
         static void Main(string[] args)
         {
 
-            string iTunesXml = @"C:\Users\matth\Music\iTunes\iTunes Music Library.xml";
+            var iTunesXml = @"C:\Users\matth\Music\iTunes\iTunes Music Library.xml";
 
             var library = new ITunesLibrary(iTunesXml);
 
@@ -37,9 +37,11 @@ namespace PlaylistSync
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
 
-
-            M3uPlaylist playlist = new M3uPlaylist();
-            playlist.IsExtended = true;
+            
+            var playlist = new M3uPlaylist
+            {
+                IsExtended = true
+            };
 
             foreach (var track in favTracks)
             {
@@ -54,8 +56,10 @@ namespace PlaylistSync
 
             }
 
-            M3uContent content = new M3uContent();
+            var content = new M3uContent();
             string text = content.ToText(playlist);
+
+            // FORMAT: ../Radiohead/In Rainbows/1-01 15 Step.mp3
 
             File.WriteAllText("test.m3u", text);
 
