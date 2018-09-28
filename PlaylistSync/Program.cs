@@ -27,42 +27,44 @@ namespace PlaylistSync
 
             var playlists = library.Playlists;
 
-            var favTracks = playlists.FirstOrDefault(x => x.Name == "Favorites").Tracks;
-
-            // returns all playlists in the iTunes Library
-
-
-            Console.WriteLine("Hello World!");
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-
-            
-            var playlist = new M3uPlaylist
-            {
-                IsExtended = true
-            };
-
-            foreach (var track in favTracks)
+            foreach (var playlist in playlists.Where(p => p.Tracks != null && p.Tracks.Count() != 0))
             {
 
-                playlist.PlaylistEntries.Add(new M3uPlaylistEntry()
+                Console.WriteLine(playlist.Name);
+
+                var serviceCollection = new ServiceCollection();
+                serviceCollection.AddLogging();
+
+
+                var playlistOutput = new M3uPlaylist
                 {
-                    Album = track.Album,
-                    AlbumArtist = track.Artist,                    
-                    Path = track.Location,
-                    Title = track.Name
-                });
+                    IsExtended = true
+                };
+
+                foreach (var track in playlist.Tracks)
+                {
+
+                    if (track.Location != null)
+                    {
+
+                        playlistOutput.PlaylistEntries.Add(new M3uPlaylistEntry()
+                        {
+                            Album = track.Album,
+                            AlbumArtist = track.Artist,
+                            Path = track.Location.Replace("file://localhost/D:/iTunesMedia/Music", "..").Replace("%20", " "),
+                            Title = track.Name
+                        });
+
+                    }
+
+                }
+
+                var content = new M3uContent();
+                string text = content.ToText(playlistOutput);
+
+                File.WriteAllText(@"\\192.168.1.2\music\playlists\" + playlist.Name + ".m3u", text);
 
             }
-
-            var content = new M3uContent();
-            string text = content.ToText(playlist);
-
-            // FORMAT: ../Radiohead/In Rainbows/1-01 15 Step.mp3
-
-            File.WriteAllText("test.m3u", text);
-
         }
 
     }
